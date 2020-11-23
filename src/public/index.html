@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Health API Retriever</title>
+  <link rel="stylesheet" href="css/styles.css?v=1.0">
+</head>
+
+<body>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/api.js"></script>
+
+  <form id="querier">
+    <label for="access-token">Access Token:</label>
+    <input type="password" id="access-token" name="access-token"><br><br>
+    <label for="patient-id">Patient ID (optional):</label>
+    <input type="text" id="patient-id" name="patient-id"><br><br>
+    <input type="submit" id="submit-button" value="Submit">
+    <div id="querier-error" class="error-str"></div>
+  </form>
+
+  <hr>
+
+  <button type="button" id="results-collapsible" class="collapsible">Patient Info Results (click to expand)</button>
+  <div id="info-results" class="content-parent"></div>
+  <div class="container">
+    <div id="loading" class="loading">
+      Loading&#8230;
+    </div>
+  </div>
+</body>
+
+</html>

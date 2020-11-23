@@ -20,6 +20,9 @@ for (let i = 0; i < routeFiles.length; i += 1) {
   }
 }
 
+// Serve front end
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
 app.listen(port, () => {
   console.log(`Health API Retriever listening at http://localhost:${port}`);
 });
