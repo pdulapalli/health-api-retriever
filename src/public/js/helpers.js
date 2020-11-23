@@ -9,6 +9,14 @@ const helpers = {
     const wordsList = _.map(_.split(originalStr, /\s+/), (w) => _.upperFirst(w));
     return _.join(wordsList, '');
   },
+  splitStringByCaps(originalStr) {
+    if (_.isEmpty(originalStr)
+      || !_.isString(originalStr)) {
+      return '';
+    }
+
+    return originalStr.match(/[A-Z][a-z]+|[0-9]+/g).join(' ');
+  },
   showQuerierError(err) {
     let msg;
     if (_.isString(err)) {
