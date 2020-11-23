@@ -1,11 +1,12 @@
+const baseUrl = `${window.location.protocol}//${window.location.host}`;
 const api = {
   async determinePatientId(token) {
     const respRaw = await fetch(`${baseUrl}/patient/id`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
 
     const { patientId, error } = await respRaw.json();
@@ -24,9 +25,9 @@ const api = {
     const respRaw = await fetch(url, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
 
     const { result, error } = await respRaw.json();
@@ -35,5 +36,5 @@ const api = {
     }
 
     return result;
-  }
+  },
 };

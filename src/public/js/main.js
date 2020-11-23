@@ -1,34 +1,9 @@
-const baseUrl = window.location.protocol + "//" + window.location.host;
-
-$(() => {
-  $('#querier').on('submit', onQuerySubmit);
-  $("#querier").validate({
-    rules: {
-      'access-token': {
-        required: true,
-        normalizer: function (value) {
-          return $.trim(value);
-        }
-      },
-      'patient-id': {
-        required: false,
-        normalizer: function (value) {
-          return $.trim(value);
-        }
-      }
-    }
-  });
-
-  registerCollapsibleClickListener($('#results-collapsible'), $('#info-results'), 'flex');
-  $('#results-collapsible').hide();
-});
-
 function registerCollapsibleClickListener(contentShowToggle, contentBody, displayStyle) {
   if (!contentShowToggle || !contentBody) {
     return;
   }
 
-  contentShowToggle.click(function () {
+  contentShowToggle.click(function() {
     $(this).toggleClass('active');
     const contentDisplay = contentBody.css('display');
     if (contentDisplay === displayStyle) {
@@ -39,16 +14,62 @@ function registerCollapsibleClickListener(contentShowToggle, contentBody, displa
   });
 }
 
+// Convert strings such as "Hello World" to "HelloWorld"
+function coalesceWordsInStr(originalStr) {
+  if (_.isEmpty(originalStr)
+    || !_.isString(originalStr)) {
+    return '';
+  }
+
+  const wordsList = _.map(_.split(originalStr, /\s+/), (w) => _.upperFirst(w));
+  return _.join(wordsList, '');
+}
+
+function showQuerierError(err) {
+  let msg;
+  if (_.isString(err)) {
+    msg = err;
+  } else if (err.message) {
+    msg = err.message;
+  }
+
+  $('#querier-error').text(msg);
+}
+
+function clearQuerierError() {
+  $('#querier-error').empty();
+}
+
+function enableSubmitBtn() {
+  $('#submit-button').prop('disabled', false);
+}
+
+function disableSubmitBtn() {
+  $('#submit-button').prop('disabled', true);
+}
+
+function showSpinner() {
+  const loadingDiv = document.getElementById('loading');
+  loadingDiv.style.visibility = 'visible';
+}
+
+function hideSpinner() {
+  const loadingDiv = document.getElementById('loading');
+  loadingDiv.style.visibility = 'hidden';
+}
+
+// Clean up retrieved content and remove redundant info
 function generateContentDiv(resource) {
   const resourceType = _.get(resource, 'resourceType') || 'unknown';
   const originalDivHtmlStr = _.get(resource, 'text.div') || '<div></div>';
   const contentBody = $(originalDivHtmlStr);
   contentBody.addClass('content-detail');
 
-  let elsToDelete = []; // TODO: remove patient name
-  contentBody.children('p').each(function () {
+  const elsToDelete = []; // TODO: remove patient name
+  contentBody.children('p').each(function() {
     const textContent = $(this).text();
-    if (textContent.indexOf('atient') >= 0) {
+    if (textContent.indexOf('atient') >= 0
+      || coalesceWordsInStr(textContent) === resourceType) {
       elsToDelete.push($(this));
     }
   });
@@ -95,12 +116,12 @@ async function onQuerySubmit(event) {
     }
 
     const submittedValsList = $(this).serializeArray();
-    const tokenObj = submittedValsList.find(el => el.name === 'access-token');
-    const patientIdObj = submittedValsList.find(el => el.name === 'patient-id');
+    const tokenObj = submittedValsList.find((el) => el.name === 'access-token');
+    const patientIdObj = submittedValsList.find((el) => el.name === 'patient-id');
 
     let patientId;
-    if (patientIdObj &&
-      !_.isEmpty(patientIdObj.value)) {
+    if (patientIdObj
+      && !_.isEmpty(patientIdObj.value)) {
       patientId = patientIdObj.value;
     } else {
       patientId = await api.determinePatientId(tokenObj.value);
@@ -123,35 +144,25 @@ async function onQuerySubmit(event) {
   }
 }
 
-function showQuerierError(err) {
-  let msg;
-  if (_.isString(err)) {
-    msg = err;
-  } else if (err.message) {
-    msg = err.message;
-  }
+$(() => {
+  $('#querier').on('submit', onQuerySubmit);
+  $('#querier').validate({
+    rules: {
+      'access-token': {
+        required: true,
+        normalizer(value) {
+          return $.trim(value);
+        },
+      },
+      'patient-id': {
+        required: false,
+        normalizer(value) {
+          return $.trim(value);
+        },
+      },
+    },
+  });
 
-	$('#querier-error').text(msg);
-}
-
-function clearQuerierError() {
-	$('#querier-error').empty();
-}
-
-function enableSubmitBtn() {
-  $("#submit-button").prop('disabled', false);
-}
-
-function disableSubmitBtn() {
-  $("#submit-button").prop('disabled', true);
-}
-
-function showSpinner() {
-  const loadingDiv = document.getElementById('loading');
-  loadingDiv.style.visibility = 'visible';
-}
-
-function hideSpinner() {
-  const loadingDiv = document.getElementById('loading');
-  loadingDiv.style.visibility = 'hidden';
-}
+  registerCollapsibleClickListener($('#results-collapsible'), $('#info-results'), 'flex');
+  $('#results-collapsible').hide();
+});
