@@ -2,6 +2,7 @@
   "extends": "airbnb",
   "rules": {
     "import/no-dynamic-require": 1,
-    "global-require": 1
+    "global-require": 1,
+    "no-underscore-dangle": 1
   }
 }
