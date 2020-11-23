@@ -7,9 +7,9 @@ router.use('/', authMiddleware);
 
 router.get('/id', async (req, res) => {
   try {
-    const patientId = await healthApi.getPatientId(req.token);
+    const identifiers = await healthApi.getPatientIdentifiers(req.token);
     res.status('200').json({
-      patientId,
+      ...identifiers,
     });
   } catch (err) {
     errorHelper.propagateErrToResp(res, err);

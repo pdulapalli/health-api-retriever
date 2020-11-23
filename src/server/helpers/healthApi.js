@@ -4,7 +4,7 @@ const got = require('got');
 const API_URL_BASE_1UP_HEALTH = 'https://api.1up.health';
 const PAGINATION_MARKER = '_skip';
 
-async function getPatientId(token) {
+async function getPatientIdentifiers(token) {
   const response = await got.get(
     `${API_URL_BASE_1UP_HEALTH}/fhir/dstu2/patient`,
     {
@@ -27,7 +27,17 @@ async function getPatientId(token) {
     throw new Error('Successful response, but could not extract patient ID');
   }
 
-  return patientId;
+  const names = _.get(response, 'body.entry[0].resource.name') || [];
+  const officialNameObj = _.find(names, (n) => n.use === 'official');
+  if (_.isEmpty(names)
+    || !officialNameObj) {
+    throw new Error('Successful response, but could not extract patient name');
+  }
+
+  return {
+    patientId,
+    patientName: officialNameObj.text,
+  };
 }
 
 function streamlineInfoPayload(payload) {
@@ -73,12 +83,11 @@ async function getInfo({ patientId, token, _skip }) {
     throw err;
   }
 
-  // FIXME:
   const info = streamlineInfoPayload(response.body);
   return info;
 }
 
 module.exports = {
-  getPatientId,
+  getPatientIdentifiers,
   getInfo,
 };
