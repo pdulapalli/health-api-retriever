@@ -6,8 +6,13 @@ async function onQuerySubmit(event) {
   const resultsShowCollapsible = $('#results-collapsible');
   resultsShowCollapsible.hide();
 
+  if (!resultsShowCollapsible.hasClass('active')) {
+    resultsShowCollapsible.addClass('active');
+  }
+
   const infoResults = $('#info-results');
   infoResults.empty();
+  infoResults.hide();
 
   try {
     if (!$(this).valid()) {
