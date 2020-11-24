@@ -4,9 +4,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY src/ src/
 
-RUN	npm install \
+RUN npm install \
   && npm run lint
-RUN	npm prune --production
+RUN npm prune --production
 
 EXPOSE 9001
 
