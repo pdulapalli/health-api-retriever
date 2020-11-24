@@ -10,7 +10,9 @@
   },
   "rules": {
     "space-in-parens": 0,
-    "no-await-in-loop": 0
+    "no-await-in-loop": 0,
+    "no-undef": 0,
+    "no-unused-vars": 1
   },
   "globals": {
     "_": true
