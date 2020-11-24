@@ -3,6 +3,12 @@ async function onQuerySubmit(event) {
   helpers.disableSubmitBtn();
   helpers.clearQuerierError();
 
+  const resultsShowCollapsible = $('#results-collapsible');
+  resultsShowCollapsible.hide();
+
+  const infoResults = $('#info-results');
+  infoResults.empty();
+
   try {
     if (!$(this).valid()) {
       throw new Error('Invalid submission values');
@@ -32,9 +38,8 @@ async function onQuerySubmit(event) {
       contentFns.displayContents(info.contents);
     } while (nextPage);
 
-    const resultsShowCollapsible = $('#results-collapsible');
     resultsShowCollapsible.text(`Patient Info Results (click to expand) -- ${patientName}`);
-    $('#results-collapsible').show();
+    resultsShowCollapsible.show();
   } catch (err) {
     console.error(err);
     helpers.showQuerierError(err);
@@ -45,8 +50,9 @@ async function onQuerySubmit(event) {
 }
 
 $(() => {
-  $('#querier').on('submit', onQuerySubmit);
-  $('#querier').validate({
+  const querier = $('#querier');
+  querier.on('submit', onQuerySubmit);
+  querier.validate({
     rules: {
       'access-token': {
         required: true,
@@ -63,6 +69,7 @@ $(() => {
     },
   });
 
-  helpers.registerCollapsibleClickListener($('#results-collapsible'), $('#info-results'), 'flex');
-  $('#results-collapsible').hide();
+  const resultsCollapsible = $('#results-collapsible');
+  helpers.registerCollapsibleClickListener(resultsCollapsible, $('#info-results'), 'flex');
+  resultsCollapsible.hide();
 });
