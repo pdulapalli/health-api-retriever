@@ -4,9 +4,16 @@ const got = require('got');
 const API_URL_BASE_1UP_HEALTH = 'https://api.1up.health';
 const PAGINATION_MARKER = '_skip';
 
-async function getPatientIdentifiers(token) {
+async function getPatientIdentifiers({ token, id }) {
+  let url = `${API_URL_BASE_1UP_HEALTH}/fhir/dstu2/patient`;
+  let parseDotNotation = 'body.entry[0].resource';
+  if (id) {
+    url += `/${id}`;
+    parseDotNotation = 'body';
+  }
+
   const response = await got.get(
-    `${API_URL_BASE_1UP_HEALTH}/fhir/dstu2/patient`,
+    url,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -17,17 +24,17 @@ async function getPatientIdentifiers(token) {
   );
 
   if (response.statusCode !== 200) {
-    const err = new Error('Failed API request');
+    const err = new Error('Request failed for getting patient identifiers');
     err.statusCode = response.statusCode;
     throw err;
   }
 
-  const patientId = _.get(response, 'body.entry[0].resource.id') || '';
+  const patientId = _.get(response, `${parseDotNotation}.id`) || '';
   if (_.isEmpty(patientId)) {
     throw new Error('Successful response, but could not extract patient ID');
   }
 
-  const names = _.get(response, 'body.entry[0].resource.name') || [];
+  const names = _.get(response, `${parseDotNotation}.name`) || [];
   const officialNameObj = _.find(names, (n) => n.use === 'official');
   if (_.isEmpty(names)
     || !officialNameObj) {
@@ -78,7 +85,7 @@ async function getInfo({ patientId, token, _skip }) {
   );
 
   if (response.statusCode !== 200) {
-    const err = new Error('Failed API request');
+    const err = new Error('Request failed for getting patient information');
     err.statusCode = response.statusCode;
     throw err;
   }

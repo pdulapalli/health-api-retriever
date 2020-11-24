@@ -1,9 +1,9 @@
 const baseUrl = `${window.location.protocol}//${window.location.host}`;
 const api = {
   async determinePatientIdentifier(token, ptId) {
-    let url = `${baseUrl}/patient/id`;
+    let url = `${baseUrl}/patient/identifier`;
     if (ptId) {
-      url += `/${ptId}`;
+      url += `?id=${ptId}`;
     }
 
     const respRaw = await fetch(url, {

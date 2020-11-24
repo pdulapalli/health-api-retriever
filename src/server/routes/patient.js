@@ -5,9 +5,12 @@ const errorHelper = require('../helpers/error');
 
 router.use('/', authMiddleware);
 
-router.get('/id', async (req, res) => {
+router.get('/identifier', async (req, res) => {
   try {
-    const identifiers = await healthApi.getPatientIdentifiers(req.token);
+    const identifiers = await healthApi.getPatientIdentifiers({
+      token: req.token,
+      id: req.query.id,
+    });
     res.status('200').json({
       ...identifiers,
     });

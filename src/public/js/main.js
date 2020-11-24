@@ -33,7 +33,7 @@ async function onQuerySubmit(event) {
     } while (nextPage);
 
     const resultsShowCollapsible = $('#results-collapsible');
-    resultsShowCollapsible.text(`${resultsShowCollapsible.text()} -- ${patientName}`);
+    resultsShowCollapsible.text(`Patient Info Results (click to expand) -- ${patientName}`);
     $('#results-collapsible').show();
   } catch (err) {
     console.error(err);
