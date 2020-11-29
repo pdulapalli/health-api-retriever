@@ -56,6 +56,37 @@ function checkIfShouldExcludeResource(resource) {
   return !!excludeResource;
 }
 
+function parseRelatedPersonResource(resource) {
+  const relationship = _.get(resource, 'relationship');
+  const names = _.get(resource, 'name');
+
+  let nameStr;
+  if (names) {
+    const nameObj = helpers.findPersonsNameObj(names);
+    nameStr = helpers.assemblePersonNameStr(nameObj);
+  }
+
+  const relationshipText = helpers.getRelationshipText(relationship);
+  const personId = _.get(resource, 'id');
+  const summaryTextArr = [];
+
+  if (nameStr) {
+    summaryTextArr.push(nameStr);
+  } else {
+    summaryTextArr.push('Name not specified');
+  }
+
+  if (relationshipText) {
+    summaryTextArr.push(`Relationship: ${relationshipText}`);
+  }
+
+  if (personId) {
+    summaryTextArr.push(`ID: ${personId}`);
+  }
+
+  return summaryTextArr.join('; ');
+}
+
 function extractPlainTextContentSummary(resource) {
   const resourceType = _.get(resource, 'resourceType') || 'unknown';
   const codeableText = _.get(resource, 'code.text') || _.get(resource, 'code.coding[0].display');
@@ -80,6 +111,11 @@ function extractPlainTextContentSummary(resource) {
     case 'Encounter':
       contentSummary = _.get(resource, 'class.display');
       break;
+    case 'Immunization': {
+      const vaccineCode = _.get(resource, 'vaccineCode');
+      const coding = _.get(vaccineCode, 'coding');
+      contentSummary = _.get(vaccineCode, 'text') || _.get(coding, 'display') || _.get(coding, 'code');
+    } break;
     case 'MedicationStatement':
       contentSummary = _.get(resource, 'medicationCodeableConcept.text') || _.get(resource, 'id');
       break;
@@ -87,6 +123,10 @@ function extractPlainTextContentSummary(resource) {
       const names = _.get(resource, 'name') || [];
       const nameObj = _.find(names, (n) => n.use === 'official');
       contentSummary = _.get(nameObj, 'text') || '<NONE>';
+      break;
+    }
+    case 'RelatedPerson': {
+      contentSummary = parseRelatedPersonResource(resource);
       break;
     }
     case 'Condition':
