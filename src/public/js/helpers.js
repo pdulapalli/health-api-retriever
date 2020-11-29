@@ -1,3 +1,13 @@
+function isRelationshipSelf(relationshipObj) {
+  if (!relationshipObj) {
+    return false;
+  }
+
+  const codes = _.get(relationshipObj, 'coding');
+  const relCode = _.find(codes, (c) => c.code === 'ONESELF');
+  return !_.isNil(relCode);
+}
+
 const helpers = {
   // Convert strings such as "Hello World" to "HelloWorld"
   coalesceWordsInStr(originalStr) {
@@ -26,6 +36,61 @@ const helpers = {
     }
 
     $('#querier-error').text(msg);
+  },
+  findPersonsNameObj(names) {
+    if (!_.isArray(names)
+      || _.size(names) < 1) {
+      return {};
+    }
+
+    const officialName = _.find(names, (n) => n.use === 'official');
+    if (officialName) {
+      return officialName;
+    }
+
+    const usualName = _.find(names, (n) => n.use === 'usual');
+    if (usualName) {
+      return usualName;
+    }
+
+    return names[0];
+  },
+  getRelationshipText(relationshipObj) {
+    if (!relationshipObj) {
+      return '';
+    }
+
+    const isSelf = isRelationshipSelf(relationshipObj);
+    if (isSelf) {
+      return 'Self';
+    }
+
+    return _.get(relationshipObj, 'text');
+  },
+  assemblePersonNameStr(nameObj) {
+    const text = _.get(nameObj, 'text');
+    if (text) {
+      return text;
+    }
+
+    const namesList = [];
+    const familyName = _.get(nameObj, 'family');
+    const givenNameArr = _.get(nameObj, 'given');
+    let givenName;
+    if (!_.isEmpty(givenNameArr)
+      && _.isArray(givenNameArr)) {
+      givenName = _.join(givenNameArr, ' ');
+    }
+
+    if (familyName) {
+      namesList.push(familyName);
+    }
+
+    if (givenName) {
+      namesList.push(givenName);
+    }
+
+    return _.join(namesList, ',');
   },
   clearQuerierError() {
     $('#querier-error').empty();
