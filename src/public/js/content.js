@@ -55,17 +55,49 @@ function extractPlainTextContentSummary(resource) {
       return _.get(resource, 'substance.text');
     case 'Condition':
     case 'Observation':
-      return _.get(resource, 'code.text');
+
+function extractPlainTextContentSummary(resource) {
+  const resourceType = _.get(resource, 'resourceType') || 'unknown';
+  const codeableText = _.get(resource, 'code.text') || _.get(resource, 'code.coding[0].display');
+
+  let contentSummary;
+  switch (resourceType) {
+    case 'AllergyIntolerance':
+      contentSummary = _.get(resource, 'substance.text');
+      break;
+    case 'CarePlan':
+      contentSummary = _.get(resource, 'title') || _.get(resource, 'category[0].text');
+      break;
+    case 'Claim': {
+      const type = _.get(resource, 'type.coding[0].code');
+      const subType = _.get(resource, 'subType.coding[0].display');
+      if (type && subType) {
+        contentSummary = `${type} -- ${subType}`;
+      } else if (type) {
+        contentSummary = type;
+      }
+    } break;
+    case 'Encounter':
+      contentSummary = _.get(resource, 'class.display');
+      break;
     case 'MedicationStatement':
-      return _.get(resource, 'medicationCodeableConcept.text');
+      contentSummary = _.get(resource, 'medicationCodeableConcept.text') || _.get(resource, 'id');
+      break;
     case 'Patient': {
       const names = _.get(resource, 'name') || [];
       const nameObj = _.find(names, (n) => n.use === 'official');
-      return _.get(nameObj, 'text') || '<NONE>';
+      contentSummary = _.get(nameObj, 'text') || '<NONE>';
+      break;
     }
+    case 'Condition':
+    case 'DiagnosticReport':
+    case 'Medication':
+    case 'Observation':
     default:
-      return 'UNKNOWN';
+      break;
   }
+
+  return contentSummary || codeableText || 'Unknown';
 }
 
 function createContent(resource) {
@@ -90,8 +122,8 @@ const contentFns = {
 
     for (let i = 0; i < contents.length; i += 1) {
       const { resource } = contents[i];
-      const { contentShowToggle, contentBody } = createContent(resource);
       const resourceType = _.get(resource, 'resourceType') || 'unknown';
+      const { contentShowToggle, contentBody } = createContent(resource);
       const categoryContainer = getCategoryContainer(resourceType);
       categoryContainer.append(contentShowToggle, [contentBody]);
     }
