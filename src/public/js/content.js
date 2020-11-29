@@ -61,7 +61,7 @@ function extractPlainTextContentSummary(resource) {
     case 'Patient': {
       const names = _.get(resource, 'name') || [];
       const nameObj = _.find(names, (n) => n.use === 'official');
-      return _.get(nameObj, 'text') || 'Unknown';
+      return _.get(nameObj, 'text') || '<NONE>';
     }
     default:
       return 'UNKNOWN';

@@ -43,7 +43,12 @@ async function onQuerySubmit(event) {
       contentFns.displayContents(info.contents);
     } while (nextPage);
 
-    resultsShowCollapsible.text(`Patient Info Results (click to expand) -- ${patientName}`);
+    let resultsShowCollapsibleTextStr = 'Patient Info Results (click to expand)';
+    if (patientName) {
+      resultsShowCollapsibleTextStr += ` -- ${patientName}`;
+    }
+
+    resultsShowCollapsible.text(resultsShowCollapsibleTextStr);
     resultsShowCollapsible.show();
   } catch (err) {
     console.error(err);
