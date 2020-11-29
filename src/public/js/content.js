@@ -48,13 +48,13 @@ function getCategoryContainer(category) {
   return categoryBody;
 }
 
-function extractPlainTextContentSummary(resource) {
-  const resourceType = _.get(resource, 'resourceType') || 'unknown';
-  switch (resourceType) {
-    case 'AllergyIntolerance':
-      return _.get(resource, 'substance.text');
-    case 'Condition':
-    case 'Observation':
+function checkIfShouldExcludeResource(resource) {
+  const EXCLUSION_STR = 'entered-in-error';
+  const status = _.get(resource, 'status');
+  const verificationStatus = _.get(resource, 'verificationStatus');
+  const excludeResource = (status === EXCLUSION_STR) || (verificationStatus === EXCLUSION_STR);
+  return !!excludeResource;
+}
 
 function extractPlainTextContentSummary(resource) {
   const resourceType = _.get(resource, 'resourceType') || 'unknown';
@@ -123,9 +123,12 @@ const contentFns = {
     for (let i = 0; i < contents.length; i += 1) {
       const { resource } = contents[i];
       const resourceType = _.get(resource, 'resourceType') || 'unknown';
-      const { contentShowToggle, contentBody } = createContent(resource);
-      const categoryContainer = getCategoryContainer(resourceType);
-      categoryContainer.append(contentShowToggle, [contentBody]);
+      const shouldExcludeResource = checkIfShouldExcludeResource(resource);
+      if (!shouldExcludeResource) {
+        const { contentShowToggle, contentBody } = createContent(resource);
+        const categoryContainer = getCategoryContainer(resourceType);
+        categoryContainer.append(contentShowToggle, [contentBody]);
+      }
     }
   },
 };
