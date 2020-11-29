@@ -121,8 +121,9 @@ function extractPlainTextContentSummary(resource) {
       break;
     case 'Patient': {
       const names = _.get(resource, 'name') || [];
-      const nameObj = _.find(names, (n) => n.use === 'official');
-      contentSummary = _.get(nameObj, 'text') || '<NONE>';
+      const nameObj = helpers.findPersonsNameObj(names);
+      const nameStr = helpers.assemblePersonNameStr(nameObj);
+      contentSummary = nameStr || '[NONE]';
       break;
     }
     case 'RelatedPerson': {
